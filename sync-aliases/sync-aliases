@@ -3,5 +3,5 @@ bin_dir=`cd "$(dirname "$BASH_SOURCE[0]")"; pwd`
 [ -f "$bin_dir/requirements.txt" ] \
 	&& python3 -m venv env \
 	&& source $bin_dir/env/bin/activate \
-	&& pip install -r requirements.txt --quiet 
+	&& pip3 install -r requirements.txt --quiet 
 python3 $bin_dir/sync-aliases.py "$@"
