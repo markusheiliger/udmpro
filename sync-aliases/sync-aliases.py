@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import io
+import os
 import re
 import sys
 import requests
@@ -62,14 +63,14 @@ def generateAliasMap(networks: dict, clients: dict):
 
 def main():
 
-	parser = ArgumentParser()
+	parser = ArgumentParser(prog=os.path.basename(os.path.splitext(__file__)[0]))
 	parser.add_argument('-b', '--baseurl', type=str, default="https://192.168.0.1:443", help='The site\'s base URL. Defaults to: "https://192.168.0.1:443"')
 	parser.add_argument('-u', '--username', type=str, default="root", help='Your user\'s username. Defaults to: "root"')
 	parser.add_argument('-p', '--password', type=str, default="ubnt", help='Your user\'s password. Defaults to: "ubnt"')
-	parser.add_argument('-s', '--site', type=str, default="default", help='The name of your unifi site. Defaults to: "default"')
 	parser.add_argument('-su', '--ssh_username', type=str, default="root", help='Your UDM\'s SSH username. Defaults to: "root"')
 	parser.add_argument('-sp', '--ssh_password', type=str, default="ubnt", help='Your UDM\'s SSH password. Defaults to: "ubnt"')
 	parser.add_argument('-sa', '--ssh_address', type=str, default="192.168.0.1", help='Your UDM\'s SSH address. Defaults to: "192.168.0.1"')
+	parser.add_argument('-s', '--site', type=str, default="default", help='The name of your unifi site. Defaults to: "default"')
 	parser.add_argument('-v', '--verbose', action='count', default=0, help='Enable verbose output. May be specified multiple times for increased verbosity.')
 	
 	args = parser.parse_args()
