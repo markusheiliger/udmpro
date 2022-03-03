@@ -61,6 +61,10 @@ def generateAliasMap(networks: dict, clients: dict):
 
 	return aliasMap
 
+def getRemoteHash(ssh: paramiko.SSHClient):
+	stdin, stdout, stderr = ssh.exec_command(f'md5sum {ALIAS_CONF_FILEPATH} | awk \'{{print $1}}\'')
+	return stdout.read().decode()
+
 def main():
 
 	parser = ArgumentParser(prog=os.path.basename(os.path.splitext(__file__)[0]))
@@ -101,16 +105,23 @@ def main():
 		ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 		ssh.connect(hostname=args.ssh_address,username=args.ssh_username,password=args.ssh_password)
 
+		# get the md5 haash of the current alias config
+		oldHash = getRemoteHash(ssh)
+
 		if args.verbose: print('Pushing new alias.conf file...')
 		with SCPClient(ssh.get_transport()) as scp:
 			with io.BytesIO() as buffer:
 				for k, v in aliasMap.items():
 					buffer.write(f'cname={k},{v}\n'.encode('utf-8'))
 				buffer.seek(0)
-				scp.putfo(buffer, ALIAS_CONF_FILEPATH)
+				scp.putfo(buffer, ALIAS_CONF_FILEPATH)				
 
-		if args.verbose: print('Restarting dnsmasq service...')
-		ssh.exec_command("""killall dnsmasq""")
+		# get the md5 haash of the updated alias config
+		newHash = getRemoteHash(ssh)
+
+		if (oldHash != newHash):
+			print('Restarting dnsmasq service ...')
+			ssh.exec_command("""killall dnsmasq""")
 
 	sys.exit(0)
 
